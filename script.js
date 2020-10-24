@@ -1,6 +1,6 @@
 'use strict'
 const videoElement = document.querySelector('#video')
-
+infoMsg('v0.1.1')
 // List media devices in the console
 navigator.mediaDevices.enumerateDevices()
   .then(devices => devices.forEach(device => {
@@ -66,7 +66,7 @@ async function toggleVideo () {
 function cycleVideoTrack () {
   const index = state.selectedCamera
   const nextIdx = (index + 1) % state.cameras.length
-  infoMsg(`curIdx: ${index} | nextIdx: ${nextIdx}`)
+  // infoMsg(`curIdx: ${index} | nextIdx: ${nextIdx}`)
   // if (nextIdx === index) return
   state.selectedCamera = nextIdx
   infoMsg(`selected: ${state.camera.label} | ${state.camera.deviceId}`)
@@ -92,7 +92,7 @@ async function init () {
     state.stream = null // state.stream will proxy the assignemnt
   }
   const constraints = getConstraints()
-  // infoMsg(`<pre>${JSON.stringify(constraints, null, 4)}</pre>`)
+  infoMsg(constraints.video.deviceId.exact)
   console.log('requesting user media', constraints)
   return navigator.mediaDevices.getUserMedia(constraints)
     .then(handleSuccess)
