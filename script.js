@@ -20,15 +20,17 @@ const state = {
     video: false,
     audio: false,
     deviceId: {
-      get exact () {
-        return state.selectedCamera?.deviceId || null
-      }
+      get exact () { return state.camera.deviceId }
     }
   },
   get stream () { return videoElement.srcObject },
   set stream (s) { videoElement.srcObject = s },
   cameras: null, // list of available cameras
-  selectedCamera: null // camera selected for display
+  selectedCamera: 0, // camera selected for display
+  get camera () {
+    if (!state.cameras) return {}
+    return state.cameras[state.selectedCamera]
+  }
 }
 
 // expose the application state to the browser console
@@ -38,8 +40,7 @@ async function initState () {
   const devices = await navigator.mediaDevices.enumerateDevices()
   state.cameras = devices.filter(device => device.kind === 'videoinput')
   if (!state.cameras.length) console.warn('No cameras detected!')
-  state.selectedCamera = state.cameras[0] || null
-  console.log('Selected camera:', state.selectedCamera.label)
+  console.log('Selected camera:', state.camera.label)
   state.cameras.forEach((c, i) => infoMsg(`${i + 1}: ${c.label}`))
 }
 
@@ -55,22 +56,23 @@ async function toggleVideo () {
 }
 
 function cycleVideoTrack () {
-  const curIdx = state.cameras.findIndex(camera => camera.id === state.selectedCamera.id)
-  infoMsg(`curIdx: ${curIdx}`)
-  const nextIdx = (curIdx + 1) % state.cameras.length
-  if (nextIdx === curIdx) return
-  selectCamera(state.cameras[nextIdx])
-  infoMsg(`selected: ${state.selectedCamera.label}`)
+  const index = state.selectedCamera
+  const nextIdx = (index + 1) % state.cameras.length
+  infoMsg(`curIdx: ${index} | nextIdx: ${nextIdx}`)
+  if (nextIdx === index) return
+  state.selectedCamera = nextIdx
+  infoMsg(`selected: ${state.cameras[nextIdx].label}`)
+  init()
 }
 
 // select the camera that would be displayed
 // if state.constraint.video were true
-async function selectCamera (camera) {
-  if (state.selectedCamera.id === camera.id) return
-  console.log('selecting camera', camera.label)
-  state.selectedCamera = camera
-  init()
-}
+// async function selectCamera (camera) {
+//   if (state.selectedCamera.id === camera.id) return
+//   console.log('selecting camera', camera.label)
+//   state.selectedCamera = camera
+//   init()
+// }
 
 async function init () {
   if (!state.cameras) await initState()
