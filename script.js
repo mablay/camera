@@ -28,12 +28,17 @@ const state = {
 }
 
 function getConstraints () {
-  return {
-    ...state.constraints,
-    deviceId: {
-      exact: state.camera.deviceId
+  if (state.constraints.video) {
+    return {
+      audio: false,
+      video: {
+        deviceId: {
+          exact: state.camera.deviceId
+        }
+      }
     }
   }
+  return { audio: false, video: false }
 }
 
 // expose the application state to the browser console
@@ -66,6 +71,7 @@ function cycleVideoTrack () {
   state.selectedCamera = nextIdx
   infoMsg(`selected: ${state.camera.label} | ${state.camera.deviceId}`)
   // init()
+  if (!state.stream) return
   state.stream.getVideoTracks()[0].applyConstraints(getConstraints())
 }
 
@@ -87,6 +93,7 @@ async function init () {
   }
   const constraints = getConstraints()
   // infoMsg(`<pre>${JSON.stringify(constraints, null, 4)}</pre>`)
+  console.log('requesting user media', constraints)
   return navigator.mediaDevices.getUserMedia(constraints)
     .then(handleSuccess)
     .catch(handleError)
