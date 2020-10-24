@@ -9,20 +9,14 @@ navigator.mediaDevices.enumerateDevices()
       videoinput: '📷',
       audiooutput: '🔊'
     }[device.kind] || device.kind
-    console.log(icon, '|', device.label)
+    infoMsg(`${icon} | ${device.label}`)
   }))
 
 // One object as application state
 // statically linking it to its related entities.
 // Don't do this in a real application!
 const state = {
-  constraints: {
-    video: false,
-    audio: false,
-    deviceId: {
-      get exact () { return state.camera.deviceId }
-    }
-  },
+  constraints: { video: false, audio: false },
   get stream () { return videoElement.srcObject },
   set stream (s) { videoElement.srcObject = s },
   cameras: null, // list of available cameras
@@ -30,6 +24,15 @@ const state = {
   get camera () {
     if (!state.cameras) return {}
     return state.cameras[state.selectedCamera]
+  }
+}
+
+function getConstraints () {
+  return {
+    ...state.constraints,
+    deviceId: {
+      exact: state.camera.deviceId
+    }
   }
 }
 
@@ -61,7 +64,7 @@ function cycleVideoTrack () {
   infoMsg(`curIdx: ${index} | nextIdx: ${nextIdx}`)
   // if (nextIdx === index) return
   state.selectedCamera = nextIdx
-  infoMsg(`selected: ${state.camera.label}`)
+  infoMsg(`selected: ${state.camera.label} | ${state.camera.deviceId}`)
   init()
 }
 
@@ -77,8 +80,9 @@ function cycleVideoTrack () {
 async function init () {
   if (!state.cameras) await initState()
   if (!state.constraints.video && !state.constraints.audio) return
-  infoMsg(`<pre>${JSON.stringify(state.constraints, null, 4)}</pre>`)
-  return navigator.mediaDevices.getUserMedia(state.constraints)
+  const constraints = getConstraints()
+  // infoMsg(`<pre>${JSON.stringify(constraints, null, 4)}</pre>`)
+  return navigator.mediaDevices.getUserMedia(constraints)
     .then(handleSuccess)
     .catch(handleError)
 }
@@ -113,7 +117,7 @@ function errorMsg (msg, error) {
 
 function infoMsg (msg) {
   document.querySelector('#infoMsg')
-    .innerHTML += `<p>${msg}</p>`
+    .innerHTML += `<div>${msg}</div>`
 }
 
 document.querySelector('#toggleVideo')
