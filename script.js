@@ -40,6 +40,7 @@ async function initState () {
   if (!state.cameras.length) console.warn('No cameras detected!')
   state.selectedCamera = state.cameras[0] || null
   console.log('Selected camera:', state.selectedCamera.label)
+  state.cameras.forEach((c, i) => infoMsg(`${i + 1}: ${c.label}`))
 }
 
 async function toggleVideo () {
@@ -55,9 +56,11 @@ async function toggleVideo () {
 
 function cycleVideoTrack () {
   const curIdx = state.cameras.findIndex(camera => camera.id === state.selectedCamera.id)
+  infoMsg(`curIdx: ${curIdx}`)
   const nextIdx = (curIdx + 1) % state.cameras.length
   if (nextIdx === curIdx) return
   selectCamera(state.cameras[nextIdx])
+  infoMsg(`selected: ${state.selectedCamera.label}`)
 }
 
 // select the camera that would be displayed
@@ -103,6 +106,11 @@ function errorMsg (msg, error) {
   if (typeof error !== 'undefined') {
     console.error(error)
   }
+}
+
+function infoMsg (msg) {
+  document.querySelector('#infoMsg')
+    .innerHTML += `<p>${msg}</p>`
 }
 
 document.querySelector('#toggleVideo')
