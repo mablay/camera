@@ -1,0 +1,30 @@
+html, body {
+  background-color: black;
+  margin: 0;
+  padding: 0;
+}
+
+#video {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#toggleVideo {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+}
+#cycleVideoTrack {
+  position: absolute;
+  left: 100px;
+  top: 20px;
+}
+
+#errorMsg {
+  position: absolute;
+  left: 0;
+  top: 100px;
+  width: 100vh;
+  color: red;
+}
