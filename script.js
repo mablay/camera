@@ -59,9 +59,9 @@ function cycleVideoTrack () {
   const index = state.selectedCamera
   const nextIdx = (index + 1) % state.cameras.length
   infoMsg(`curIdx: ${index} | nextIdx: ${nextIdx}`)
-  if (nextIdx === index) return
+  // if (nextIdx === index) return
   state.selectedCamera = nextIdx
-  infoMsg(`selected: ${state.cameras[nextIdx].label}`)
+  infoMsg(`selected: ${state.camera.label}`)
   init()
 }
 
@@ -77,6 +77,7 @@ function cycleVideoTrack () {
 async function init () {
   if (!state.cameras) await initState()
   if (!state.constraints.video && !state.constraints.audio) return
+  infoMsg(`<pre>${JSON.stringify(state.constraints, null, 4)}</pre>`)
   return navigator.mediaDevices.getUserMedia(state.constraints)
     .then(handleSuccess)
     .catch(handleError)
