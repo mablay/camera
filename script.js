@@ -65,7 +65,8 @@ function cycleVideoTrack () {
   // if (nextIdx === index) return
   state.selectedCamera = nextIdx
   infoMsg(`selected: ${state.camera.label} | ${state.camera.deviceId}`)
-  init()
+  // init()
+  state.stream.getVideoTracks()[0].applyConstraints(getConstraints())
 }
 
 // select the camera that would be displayed
@@ -80,6 +81,10 @@ function cycleVideoTrack () {
 async function init () {
   if (!state.cameras) await initState()
   if (!state.constraints.video && !state.constraints.audio) return
+  if (state.stream) {
+    state.stream.getVideoTracks().forEach(track => track.stop())
+    state.stream = null // state.stream will proxy the assignemnt
+  }
   const constraints = getConstraints()
   // infoMsg(`<pre>${JSON.stringify(constraints, null, 4)}</pre>`)
   return navigator.mediaDevices.getUserMedia(constraints)
@@ -89,10 +94,8 @@ async function init () {
 
 function handleSuccess (stream) {
   state.stream = stream
-  state.videoTracks = stream.getVideoTracks()
   console.log('Got stream with constraints:', state.constraints)
-  console.log(`Using video device: ${state.videoTracks[0].label}`)
-  videoElement.srcObject = stream
+  console.log(`Using video device: ${state.stream.getVideoTracks()[0].label}`)
 }
 
 function handleError (error) {
